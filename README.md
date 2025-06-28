@@ -1,3 +1,3 @@
 # MadDrFrank-s-BNNs
 
-![redes neuronales](https://github.com/user-attachments/assets/87c48cae-1d67-42bc-b078-626de86de4e7)
+![image](https://github.com/user-attachments/assets/a02b20ee-ca27-4c4a-9067-92db7d19d0fe)

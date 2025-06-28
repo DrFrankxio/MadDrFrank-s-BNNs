@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <title>Red Neuronal Binaria Personalizable</title>
   <style>
-    body { margin: 0; background: #fff; }
-    canvas { display: block; margin: auto; background: #fff; }
+    body { margin: 0; background: #000; color:#0f0 }
+    canvas { display: block; margin: auto; background: #000; }
   </style>
 </head>
 <body>
   <h2>Red Neuronal Binaria Personalizable</h2>
   <pre id="output"></pre>
-  <canvas id="canvas" width="1200" height="800"></canvas>
+  <canvas id="canvas" width="1200" height="400"></canvas>
   <script>
     function sigmoid(x) {
       return 1 / (1 + Math.exp(-x));
@@ -22,9 +22,12 @@
     }
 
     // Parámetros de la red neuronal
-    const inputSize = 125;
-    const hiddenLayers = [25, 5, 5, 5]; // Puedes poner más capas: [4], [3,2], etc.
+    const inputSize = 50;
+    const hiddenLayers = [25, 25, 25, 25]; // Puedes poner más capas: [4], [3,2], etc.
     const outputSize = 4;
+
+    const lr = 0.5;
+    const epochs = 10000;
 
     document.write("["+inputSize+","+hiddenLayers+","+outputSize+"]")
 
@@ -91,9 +94,6 @@
     }
 
     drawNetwork();
-
-    const lr = 0.5;
-    const epochs = 10000;
 
     // Entradas binarias y sus salidas XOR (ajusta si cambias inputSize)
     const inputs = [

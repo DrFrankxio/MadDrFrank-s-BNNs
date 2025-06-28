@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Red Neuronal Binaria</title>
+</head>
+<body>
+  <h2>Red Neuronal Binaria - XOR</h2>
+  <pre id="output"></pre>
+
+  <script>
+    function sigmoid(x) {
+      return 1 / (1 + Math.exp(-x));
+    }
+
+    function sigmoidDerivative(x) {
+      return x * (1 - x);
+    }
+
+    // Datos de entrada: [A, B]
+    const inputs = [
+      [0, 0],
+      [0, 1],
+      [1, 0],
+      [1, 1]
+    ];
+
+    // Salidas deseadas para XOR
+    const outputs = [
+      [0],
+      [1],
+      [1],
+      [0]
+    ];
+
+    const lr = 0.5; // tasa de aprendizaje
+    const epochs = 10000;
+
+    // Inicialización aleatoria de pesos y sesgos
+    let weights1 = [
+      [Math.random(), Math.random()],
+      [Math.random(), Math.random()]
+    ]; // 2x2
+    let bias1 = [Math.random(), Math.random()]; // capa oculta
+
+    let weights2 = [Math.random(), Math.random()]; // 2x1
+    let bias2 = Math.random(); // capa de salida
+
+    for (let epoch = 0; epoch < epochs; epoch++) {
+      for (let i = 0; i < inputs.length; i++) {
+        const input = inputs[i];
+        const target = outputs[i];
+
+        // FORWARD
+        let hidden = [];
+        for (let j = 0; j < 2; j++) {
+          hidden[j] = sigmoid(
+            input[0] * weights1[0][j] +
+            input[1] * weights1[1][j] +
+            bias1[j]
+          );
+        }
+
+        const output = sigmoid(
+          hidden[0] * weights2[0] +
+          hidden[1] * weights2[1] +
+          bias2
+        );
+
+        // BACKPROPAGATION
+        const error = target[0] - output;
+        const d_output = error * sigmoidDerivative(output);
+
+        let d_hidden = [];
+        for (let j = 0; j < 2; j++) {
+          d_hidden[j] = d_output * weights2[j] * sigmoidDerivative(hidden[j]);
+        }
+
+        // Actualizar pesos de salida
+        for (let j = 0; j < 2; j++) {
+          weights2[j] += lr * d_output * hidden[j];
+        }
+        bias2 += lr * d_output;
+
+        // Actualizar pesos de la capa oculta
+        for (let j = 0; j < 2; j++) {
+          weights1[0][j] += lr * d_hidden[j] * input[0];
+          weights1[1][j] += lr * d_hidden[j] * input[1];
+          bias1[j] += lr * d_hidden[j];
+        }
+      }
+    }
+
+    // Mostrar resultados
+    let result = "";
+    for (let i = 0; i < inputs.length; i++) {
+      const input = inputs[i];
+
+      let hidden = [];
+      for (let j = 0; j < 2; j++) {
+        hidden[j] = sigmoid(
+          input[0] * weights1[0][j] +
+          input[1] * weights1[1][j] +
+          bias1[j]
+        );
+      }
+
+      const output = sigmoid(
+        hidden[0] * weights2[0] +
+        hidden[1] * weights2[1] +
+        bias2
+      );
+
+      result += `Entrada: ${input} → Salida: ${output.toFixed(4)}\n`;
+    }
+
+    document.getElementById("output").textContent = result;
+  </script>
+</body>
+</html>

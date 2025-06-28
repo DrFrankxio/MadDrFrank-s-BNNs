@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Red Neuronal Binaria Personalizable</title>
+</head>
+<body>
+  <h2>Red Neuronal Binaria Personalizable</h2>
+  <pre id="output"></pre>
+  <script>
+    function sigmoid(x) {
+      return 1 / (1 + Math.exp(-x));
+    }
+
+    function sigmoidDerivative(x) {
+      return x * (1 - x);
+    }
+
+    // Parámetros de la red neuronal
+    const inputSize = 100;
+    const hiddenLayers = [50, 25, 10, 10]; // Puedes poner más capas: [4], [3,2], etc.
+    const outputSize = 2;
+
+    const lr = 0.5;
+    const epochs = 10000;
+
+    // Entradas binarias y sus salidas XOR (ajusta si cambias inputSize)
+    const inputs = [
+      [0, 0, 0, 0],
+      [0, 0, 0, 1],
+      [0, 0, 1, 0],
+      [0, 0, 1, 1],
+      [0, 1, 0, 0],
+      [0, 1, 0, 1],
+      [0, 1, 1, 0],
+      [0, 1, 1, 1],
+      [1, 0, 0, 0],
+      [1, 0, 0, 1],
+      [1, 0, 1, 0],
+      [1, 0, 1, 1],
+      [1, 1, 0, 0],
+      [1, 1, 0, 1],
+      [1, 1, 1, 0],
+      [1, 1, 1, 1]
+    ];
+
+    const targets = [
+      [0,1],
+      [1,0],
+      [0,0],
+      [0,0],
+      [0,0],
+      [0,0],
+      [0,0],
+      [0,0],
+      [0,0],
+      [0,0],
+      [0,0],
+      [0,0],
+      [0,0],
+      [0,0],
+      [0,0],
+      [0,0]
+    ];
+
+    // Inicializar pesos y sesgos
+    function initWeights(layers) {
+      let weights = [];
+      let biases = [];
+
+      for (let i = 0; i < layers.length - 1; i++) {
+        const inSize = layers[i];
+        const outSize = layers[i + 1];
+
+        let layerWeights = Array.from({ length: inSize }, () =>
+          Array.from({ length: outSize }, () => Math.random() * 2 - 1)
+        );
+
+        let layerBiases = Array.from({ length: outSize }, () => Math.random() * 2 - 1);
+
+        weights.push(layerWeights);
+        biases.push(layerBiases);
+      }
+
+      return { weights, biases };
+    }
+
+    const layerSizes = [inputSize, ...hiddenLayers, outputSize];
+    let { weights, biases } = initWeights(layerSizes);
+
+    // FORWARD y BACKPROP
+    for (let epoch = 0; epoch < epochs; epoch++) {
+      for (let i = 0; i < inputs.length; i++) {
+        let activations = [inputs[i]];
+        let zs = [];
+
+        // FORWARD
+        for (let l = 0; l < weights.length; l++) {
+          let input = activations[l];
+          let z = [];
+
+          for (let j = 0; j < weights[l][0].length; j++) {
+            let sum = biases[l][j];
+            for (let k = 0; k < input.length; k++) {
+              sum += input[k] * weights[l][k][j];
+            }
+            z[j] = sigmoid(sum);
+          }
+
+          zs.push(z);
+          activations.push(z);
+        }
+
+        // BACKPROP
+        let deltas = [];
+        let output = activations[activations.length - 1];
+        let target = targets[i];
+        let error = output.map((o, idx) => (target[idx] - o) * sigmoidDerivative(o));
+        deltas.unshift(error);
+
+        for (let l = weights.length - 2; l >= 0; l--) {
+          let delta = [];
+          for (let j = 0; j < weights[l][0].length; j++) {
+            let sum = 0;
+            for (let k = 0; k < weights[l + 1][j].length; k++) {
+              sum += deltas[0][k] * weights[l + 1][j][k];
+            }
+            sum *= sigmoidDerivative(activations[l + 1][j]);
+            delta.push(sum);
+          }
+          deltas.unshift(delta);
+        }
+
+        // Actualizar pesos y sesgos
+        for (let l = 0; l < weights.length; l++) {
+          for (let j = 0; j < weights[l].length; j++) {
+            for (let k = 0; k < weights[l][j].length; k++) {
+              weights[l][j][k] += lr * deltas[l][k] * activations[l][j];
+            }
+          }
+          for (let j = 0; j < biases[l].length; j++) {
+            biases[l][j] += lr * deltas[l][j];
+          }
+        }
+      }
+    }
+
+    // Mostrar resultados
+    let outputText = "";
+    for (let i = 0; i < inputs.length; i++) {
+      let input = inputs[i];
+      let activation = input.slice();
+
+      for (let l = 0; l < weights.length; l++) {
+        let next = [];
+        for (let j = 0; j < weights[l][0].length; j++) {
+          let sum = biases[l][j];
+          for (let k = 0; k < activation.length; k++) {
+            sum += activation[k] * weights[l][k][j];
+          }
+          next[j] = sigmoid(sum);
+        }
+        activation = next;
+      }
+
+      outputText += `Entrada: ${input} → Salida: ${activation.map(v => v.toFixed(4))}\n`;
+    }
+
+    document.getElementById("output").textContent = outputText;
+  </script>
+</body>
+</html>
